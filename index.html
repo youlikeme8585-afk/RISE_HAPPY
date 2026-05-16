@@ -188,8 +188,8 @@ select:focus,input:focus{border-color:var(--green)}
 // ★ Apps Script 배포 URL ★
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxhSD-TwIirN5WHB2g6QJx9nmJWWtLyX4knG2MREsa7KZh-Q_xZLI4D3p3afkus46n6/exec';
 
-const HOURS_PER_DAY = 8;
-const TYPE_HOURS = {quarter:2,half:3,full:8};
+const DAYS_PER_TYPE = {quarter:0.25, half:0.5, full:1};
+
 const TYPE_LABEL = {quarter:'1/4연차',half:'1/2연차',full:'종일연차'};
 const SLOTS = {
   quarter:['09:00~11:00','11:00~13:00','13:00~15:00','15:00~17:00'],
@@ -254,10 +254,10 @@ function goPage(id,btn) {
 
 function renderDashboard() {
   const m=members.find(x=>x.name===curUser); if(!m) return;
-  const total=m.totalDays*HOURS_PER_DAY;
-  const used=allLeaves.filter(l=>l.user===curUser&&l.status!=='반려').reduce((s,l)=>s+Number(l.hours),0);
-  const usedDays=(used/HOURS_PER_DAY).toFixed(1);
-  const remDays=((total-used)/HOURS_PER_DAY).toFixed(1);
+  const total=m.totalDays;
+  const used=allLeaves.filter(l=>l.user===curUser&&l.status!=='반려').reduce((s,l)=>s+Number(l.days||0),0);
+  const usedDays=used.toFixed(2);
+  const remDays=(total-used).toFixed(2);
   const pending=allLeaves.filter(l=>l.user===curUser&&l.status==='대기').length;
   const pct=Math.min(100,Math.round(used/total*100));
   const fc=pct>80?'var(--red)':pct>50?'var(--amber)':'var(--green)';
@@ -293,10 +293,10 @@ function pickSlot(s,el){curSlot=s;document.querySelectorAll('.slot').forEach(b=>
 
 function renderApplyRemain() {
   const m=members.find(x=>x.name===curUser); if(!m) return;
-  const used=allLeaves.filter(l=>l.user===curUser&&l.status!=='반려').reduce((s,l)=>s+Number(l.hours),0);
-  const usedDays=(used/HOURS_PER_DAY).toFixed(1);
-  const remDays=(m.totalDays-used/HOURS_PER_DAY).toFixed(1);
-  const pct=Math.min(100,Math.round(used/(m.totalDays*HOURS_PER_DAY)*100));
+  const used=allLeaves.filter(l=>l.user===curUser&&l.status!=='반려').reduce((s,l)=>s+Number(l.days||0),0);
+  const usedDays=used.toFixed(2);
+  const remDays=(m.totalDays-used).toFixed(2);
+  const pct=Math.min(100,Math.round(used/m.totalDays*100));
   const fc=pct>80?'var(--red)':pct>50?'var(--amber)':'var(--green)';
   document.getElementById('applyRemain').innerHTML=`
     <div class="card-title"><i class="ti ti-chart-bar" style="font-size:16px;color:var(--tx2)"></i>${curUser}님 잔여 연가</div>
@@ -310,11 +310,11 @@ async function submitLeave() {
   if(!date){toast('날짜를 선택해주세요');return;}
   if(!curSlot){toast('시간대를 선택해주세요');return;}
   const m=members.find(x=>x.name===curUser);
-  const used=allLeaves.filter(l=>l.user===curUser&&l.status!=='반려').reduce((s,l)=>s+Number(l.hours),0);
-  if(used+TYPE_HOURS[curType]>m.totalDays*HOURS_PER_DAY){toast('잔여 연가가 부족합니다');return;}
+  const used=allLeaves.filter(l=>l.user===curUser&&l.status!=='반려').reduce((s,l)=>s+Number(l.days||0),0);
+  if(used+DAYS_PER_TYPE[curType]>m.totalDays){toast('잔여 연가가 부족합니다');return;}
   const btn=document.getElementById('submitBtn');
   btn.disabled=true;
-  const res=await api({action:'applyLeave',user:curUser,date,type:curType,slot:curSlot,reason,hours:TYPE_HOURS[curType]});
+  const res=await api({action:'applyLeave',user:curUser,date,type:curType,slot:curSlot,reason,days:DAYS_PER_TYPE[curType]});
   if(res.error){toast('오류: '+res.error);btn.disabled=false;return;}
   await refreshLeaves();
   document.getElementById('applyReason').value='';
@@ -392,10 +392,10 @@ function renderCalendar() {
 
 function renderTeam() {
   document.getElementById('teamGrid').innerHTML=members.map((m,i)=>{
-    const used=allLeaves.filter(l=>l.user===m.name&&l.status!=='반려').reduce((s,l)=>s+Number(l.hours),0);
-    const usedDays=(used/HOURS_PER_DAY).toFixed(1);
-    const remDays=(m.totalDays-used/HOURS_PER_DAY).toFixed(1);
-    const pct=Math.min(100,Math.round(used/(m.totalDays*HOURS_PER_DAY)*100));
+    const used=allLeaves.filter(l=>l.user===m.name&&l.status!=='반려').reduce((s,l)=>s+Number(l.days||0),0);
+    const usedDays=used.toFixed(2);
+    const remDays=(m.totalDays-used).toFixed(2);
+    const pct=Math.min(100,Math.round(used/m.totalDays*100));
     const fc=pct>80?'var(--red)':pct>50?'var(--amber)':'var(--green)';
     const c=COLORS[i%COLORS.length];
     return`<div class="member-card">
