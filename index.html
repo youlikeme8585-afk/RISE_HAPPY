@@ -238,7 +238,7 @@ select:focus,input:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(29,
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx_zKF5pAyDuUmR2JvKQD2OholLbbiIMKvcyVPvSpDVywy6eRYAVCLIdNYHHBMBtn31/exec';
 
 // ── 데모 여부는 이 한 줄로만 판단 ──────────────────────────
-const IS_DEMO = (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbx_zKF5pAyDuUmR2JvKQD2OholLbbiIMKvcyVPvSpDVywy6eRYAVCLIdNYHHBMBtn31/exec');
+const IS_DEMO = false;
 
 const HOURS_PER_DAY = 8;
 const TYPE_HOURS  = { quarter:2, half:3, full:8 };
@@ -283,7 +283,7 @@ window.onload = async () => {
 
 function loadDemoData() {
   members = [
-    {name:'나우진', role:'관리자', totalDays:15},
+    {name:'나우진', role:'일반', totalDays:15},
     {name:'우수리', role:'일반',   totalDays:15},
     {name:'한용수', role:'일반',   totalDays:15},
     {name:'박다솜', role:'일반',   totalDays:15},
@@ -291,7 +291,8 @@ function loadDemoData() {
     {name:'서룡',   role:'일반',   totalDays:15},
     {name:'유샛별', role:'일반',   totalDays:15},
     {name:'이향',   role:'일반',   totalDays:15},
-    {name:'고단비', role:'일반',   totalDays:15}
+    {name:'고단비', role:'일반', totalDays:15},
+    {name:'조아라', role:'관리자', totalDays:15}
   ];
   allLeaves = [];
   populateUserSelect();
