@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RISE사업단 연가 관리</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.4.0/dist/tabler-icons.min.css">
+<style>
+/* ── 리셋 & 변수 ─────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fff;--bg2:#f8f7f4;--bg3:#f0efe9;
+  --tx:#1a1a18;--tx2:#6b6a66;--tx3:#9b9a96;
+  --br:rgba(0,0,0,.12);--br2:rgba(0,0,0,.22);
+  --r8:8px;--r12:12px;
+  --green:#1D9E75;--gl:#E1F5EE;--gd:#085041;
+  --amber:#EF9F27;--al:#FAEEDA;--ad:#633806;
+  --red:#E24B4A;--rl:#FCEBEB;--rd:#A32D2D;
+  --blue:#378ADD;--bl:#E6F1FB;--bd:#042C53;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1e1e1c;--bg2:#2a2a28;--bg3:#242422;
+    --tx:#f0efe9;--tx2:#9b9a96;--tx3:#6b6a66;
+    --br:rgba(255,255,255,.12);--br2:rgba(255,255,255,.22);
+    --gl:#04342C;--gd:#9FE1CB;
+    --al:#412402;--ad:#FAC775;
+    --rl:#501313;--rd:#F7C1C1;
+    --bl:#042C53;--bd:#B5D4F4;
+  }
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Pretendard,sans-serif;background:var(--bg3);color:var(--tx);font-size:14px;line-height:1.6}
+
+/* ── 상단바 ─────────────────────────────────────────────── */
+.topbar{background:var(--bg);border-bottom:.5px solid var(--br);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;gap:12px}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.topbar h1{font-size:15px;font-weight:500;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.topbar h1 i{color:var(--green);font-size:19px}
+.user-select-wrap{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.role-badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500;background:var(--gl);color:var(--gd)}
+.role-badge.admin{background:var(--bl);color:var(--bd)}
+
+/* ── 네비 ───────────────────────────────────────────────── */
+.nav-wrap{padding:14px 24px 0}
+.nav{display:flex;gap:3px;background:var(--bg2);padding:3px;border-radius:var(--r8);max-width:580px}
+.nav button{flex:1;padding:7px 6px;border:none;background:transparent;border-radius:6px;font-size:13px;cursor:pointer;color:var(--tx2);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.nav button.active{background:var(--bg);color:var(--tx);font-weight:500;border:.5px solid var(--br)}
+.nav button i{font-size:15px}
+
+/* ── 페이지 ─────────────────────────────────────────────── */
+.page{display:none;padding:16px 24px 48px}
+.page.active{display:block}
+
+/* ── 카드 ───────────────────────────────────────────────── */
+.card{background:var(--bg);border:.5px solid var(--br);border-radius:var(--r12);padding:18px;margin-bottom:14px}
+.card-title{font-size:14px;font-weight:500;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.card-title i{color:var(--tx2);font-size:16px}
+
+/* ── 메트릭 ─────────────────────────────────────────────── */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:600px){.metrics{grid-template-columns:repeat(2,1fr)}}
+.metric{background:var(--bg2);border-radius:var(--r8);padding:14px 12px;text-align:center}
+.metric .val{font-size:26px;font-weight:500;line-height:1.1}
+.metric .lbl{font-size:11px;color:var(--tx2);margin-top:4px}
+
+/* ── 프로그레스 ─────────────────────────────────────────── */
+.prog-wrap{margin-top:8px}
+.prog-info{display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-bottom:5px}
+.prog-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .4s}
+
+/* ── 테이블 ─────────────────────────────────────────────── */
+.table-wrap{overflow-x:auto}
+table{width:100%;font-size:13px;border-collapse:collapse;min-width:500px}
+th{text-align:left;padding:8px 10px;font-weight:500;font-size:11px;color:var(--tx2);border-bottom:.5px solid var(--br);white-space:nowrap}
+td{padding:9px 10px;border-bottom:.5px solid var(--br);color:var(--tx);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--bg2)}
+.empty-row td{text-align:center;color:var(--tx3);padding:28px}
+
+/* ── 배지 ───────────────────────────────────────────────── */
+.badge{display:inline-block;font-size:11px;padding:3px 9px;border-radius:10px;font-weight:500;white-space:nowrap}
+.b-wait{background:var(--al);color:var(--ad)}
+.b-ok{background:var(--gl);color:var(--gd)}
+.b-rej{background:var(--rl);color:var(--rd)}
+
+/* ── 폼 ─────────────────────────────────────────────────── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:500px){.form-grid{grid-template-columns:1fr}}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:12px;color:var(--tx2);font-weight:500}
+select,input[type=date],input[type=text]{width:100%;padding:8px 10px;border:.5px solid var(--br);border-radius:var(--r8);font-size:13px;background:var(--bg);color:var(--tx);outline:none;transition:border .15s;-webkit-appearance:none}
+select:focus,input:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(29,158,117,.1)}
+.type-btns{display:flex;gap:7px}
+.type-btn{flex:1;padding:10px 6px;border:.5px solid var(--br);border-radius:var(--r8);font-size:12px;cursor:pointer;background:var(--bg);color:var(--tx2);text-align:center;transition:all .15s;line-height:1.5}
+.type-btn.sel{background:var(--gl);border-color:var(--green);color:var(--gd)}
+.type-btn:hover:not(.sel){border-color:var(--br2)}
+.time-slots{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+.slot{padding:7px 14px;border:.5px solid var(--br);border-radius:var(--r8);font-size:12px;cursor:pointer;background:var(--bg);color:var(--tx2);transition:all .15s}
+.slot.sel{background:var(--gl);border-color:var(--green);color:var(--gd)}
+.slot:hover:not(.sel){border-color:var(--br2)}
+.notice{background:var(--gl);border:.5px solid rgba(29,158,117,.3);border-radius:var(--r8);padding:10px 14px;font-size:12px;color:var(--gd);margin-bottom:14px;display:flex;align-items:flex-start;gap:8px}
+.notice i{flex-shrink:0;font-size:15px;margin-top:1px}
+
+/* ── 버튼 ───────────────────────────────────────────────── */
+.btn-primary{padding:9px 22px;background:var(--green);color:#fff;border:none;border-radius:var(--r8);font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary:hover{background:#0F6E56}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-sm{padding:4px 10px;font-size:12px;border:.5px solid var(--br);border-radius:6px;background:transparent;cursor:pointer;color:var(--tx);transition:all .15s}
+.btn-sm:hover{background:var(--bg2)}
+.btn-sm.approve{border-color:#3B6D11;color:#3B6D11}
+.btn-sm.approve:hover{background:var(--gl)}
+.btn-sm.reject{border-color:var(--rd);color:var(--rd)}
+.btn-sm.reject:hover{background:var(--rl)}
+.btn-sm.cancel{border-color:var(--tx3);color:var(--tx3)}
+.btn-sm.cancel:hover{background:var(--bg2)}
+
+/* ── 캘린더 ─────────────────────────────────────────────── */
+.cal-ctrl{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.cal-ctrl .mon{font-size:15px;font-weight:500;flex:1;text-align:center}
+.cal-ctrl button{padding:5px 12px;border:.5px solid var(--br);border-radius:var(--r8);background:var(--bg);cursor:pointer;font-size:14px;color:var(--tx);transition:all .15s}
+.cal-ctrl button:hover{background:var(--bg2)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-head{text-align:center;font-size:11px;font-weight:500;color:var(--tx2);padding:5px 0}
+.cal-cell{min-height:72px;background:var(--bg2);border-radius:6px;padding:5px;position:relative}
+.cal-cell.today{outline:1.5px solid var(--green)}
+.cal-cell.other{opacity:.45}
+.cal-cell .dn{font-size:11px;font-weight:500;margin-bottom:3px}
+.cal-evt{font-size:10px;padding:2px 5px;border-radius:3px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── 팀현황 ─────────────────────────────────────────────── */
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:600px){.team-grid{grid-template-columns:repeat(2,1fr)}}
+.member-card{background:var(--bg);border:.5px solid var(--br);border-radius:var(--r12);padding:14px}
+.m-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;margin-bottom:9px;flex-shrink:0}
+.m-name{font-size:14px;font-weight:500;margin-bottom:2px}
+.m-sub{font-size:12px;color:var(--tx2);margin-bottom:9px}
+
+/* ── 로딩 ───────────────────────────────────────────────── */
+.loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:32px;color:var(--tx2);font-size:13px}
+.spinner{width:18px;height:18px;border:2px solid var(--br);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── 토스트 ─────────────────────────────────────────────── */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--tx);color:var(--bg);padding:10px 20px;border-radius:var(--r8);font-size:13px;transition:transform .3s;z-index:999;white-space:nowrap;pointer-events:none}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ── 설정 없음 배너 ─────────────────────────────────────── */
+#setup-banner{background:#FAEEDA;border:.5px solid #FAC775;border-radius:var(--r8);padding:12px 16px;margin:16px 24px 0;font-size:13px;color:#633806;display:flex;align-items:center;gap:10px}
+#setup-banner.hidden{display:none}
+</style>
+</head>
+<body>
+
+<!-- ⚠️ API URL 미설정 배너 -->
+<div id="setup-banner">
+  <i class="ti ti-alert-triangle" style="font-size:17px;flex-shrink:0"></i>
+  <span><strong>설정 필요:</strong> 아래 <code>SCRIPT_URL</code>을 Google Apps Script 배포 URL로 교체해야 합니다. <a href="#" onclick="showSetupGuide()" style="color:#854F0B;font-weight:500">설정 방법 보기</a></span>
+</div>
+
+<!-- 상단바 -->
+<div class="topbar">
+  <div class="topbar-left">
+    <h1><i class="ti ti-calendar-check"></i>RISE사업단 연가 관리</h1>
+  </div>
+  <div class="user-select-wrap">
+    <select id="userSelect" style="width:auto" onchange="onUserChange()">
+      <option value="">로딩 중...</option>
+    </select>
+    <span id="roleBadge" class="role-badge">일반</span>
+  </div>
+</div>
+
+<!-- 네비 -->
+<div class="nav-wrap">
+  <div class="nav">
+    <button class="active" onclick="goPage('dashboard',this)"><i class="ti ti-home"></i>대시보드</button>
+    <button onclick="goPage('apply',this)"><i class="ti ti-plus"></i>연가신청</button>
+    <button onclick="goPage('calendar',this)"><i class="ti ti-calendar"></i>캘린더</button>
+    <button id="adminNavBtn" onclick="goPage('admin',this)" style="display:none"><i class="ti ti-shield"></i>관리자</button>
+    <button onclick="goPage('team',this)"><i class="ti ti-users"></i>팀현황</button>
+  </div>
+</div>
+
+<!-- 대시보드 -->
+<div class="page active" id="page-dashboard">
+  <div class="metrics" id="metrics">
+    <div class="metric"><div class="val">—</div><div class="lbl">연간 부여일수</div></div>
+    <div class="metric"><div class="val">—</div><div class="lbl">사용일수</div></div>
+    <div class="metric"><div class="val" style="color:var(--green)">—</div><div class="lbl">잔여일수</div></div>
+    <div class="metric"><div class="val" style="color:var(--amber)">—</div><div class="lbl">승인대기</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-list"></i>내 연가 신청 내역</div>
+    <div class="prog-wrap" id="dashProg"></div>
+    <br>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>날짜</th><th>구분</th><th>시간대</th><th>사유</th><th>상태</th><th>취소</th></tr></thead>
+        <tbody id="myTable"><tr class="empty-row"><td colspan="6"><div class="loading"><div class="spinner"></div>불러오는 중...</div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 연가신청 -->
+<div class="page" id="page-apply">
+  <div class="card">
+    <div class="card-title"><i class="ti ti-pencil"></i>연가 신청</div>
+    <div class="notice"><i class="ti ti-info-circle"></i><span>근무시간 09:00~17:00 &nbsp;·&nbsp; <strong>1/4연차</strong> 2시간(4슬롯) &nbsp;·&nbsp; <strong>1/2연차</strong> 오전/오후 3시간 &nbsp;·&nbsp; <strong>종일연차</strong> 8시간</span></div>
+    <div class="form-grid" style="margin-bottom:14px">
+      <div class="form-group">
+        <label>신청 날짜</label>
+        <input type="date" id="applyDate">
+      </div>
+      <div class="form-group">
+        <label>연가 종류</label>
+        <div class="type-btns">
+          <div class="type-btn sel" onclick="pickType('quarter',this)">1/4연차<br><small style="opacity:.7">2시간</small></div>
+          <div class="type-btn" onclick="pickType('half',this)">1/2연차<br><small style="opacity:.7">3시간</small></div>
+          <div class="type-btn" onclick="pickType('full',this)">종일연차<br><small style="opacity:.7">8시간</small></div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label>시간대 선택</label>
+      <div class="time-slots" id="timeSlots"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:18px">
+      <label>사유 <span style="color:var(--tx3)">(선택)</span></label>
+      <input type="text" id="applyReason" placeholder="예) 개인 사정">
+    </div>
+    <div style="display:flex;justify-content:flex-end">
+      <button class="btn-primary" id="submitBtn" onclick="submitLeave()"><i class="ti ti-send"></i>신청하기</button>
+    </div>
+  </div>
+  <div class="card" id="applyRemain"></div>
+</div>
+
+<!-- 캘린더 -->
+<div class="page" id="page-calendar">
+  <div class="card">
+    <div class="cal-ctrl">
+      <button onclick="prevMon()">‹</button>
+      <div class="mon" id="calTitle"></div>
+      <button onclick="nextMon()">›</button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+  </div>
+</div>
+
+<!-- 관리자 -->
+<div class="page" id="page-admin">
+  <div class="card">
+    <div class="card-title"><i class="ti ti-shield-check"></i>전체 연가 신청 내역 (관리자)</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>신청자</th><th>날짜</th><th>구분</th><th>시간대</th><th>사유</th><th>상태</th><th>처리</th></tr></thead>
+        <tbody id="adminTable"><tr class="empty-row"><td colspan="7"><div class="loading"><div class="spinner"></div>불러오는 중...</div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 팀현황 -->
+<div class="page" id="page-team">
+  <div class="card">
+    <div class="card-title"><i class="ti ti-users"></i>팀원 연가 현황</div>
+    <div class="team-grid" id="teamGrid"><div class="loading"><div class="spinner"></div>불러오는 중...</div></div>
+  </div>
+</div>
+
+<!-- 토스트 -->
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  ★ 여기에 Google Apps Script 배포 URL을 붙여넣으세요 ★
+// ══════════════════════════════════════════════════════════════
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbycadDFf8e0FdSwyIwCAyR6EYou6LTHBCi0YAWdGOUsLivzy7DFHJYDbc6G6RZVZMFB/exec';
+// 예시: 'https://script.google.com/macros/s/AKfycb.../exec'
+
+// ── 상수 ────────────────────────────────────────────────────
+const HOURS_PER_DAY = 8;
+const TYPE_HOURS  = { quarter:2, half:3, full:8 };
+const TYPE_LABEL  = { quarter:'1/4연차', half:'1/2연차', full:'종일연차' };
+const SLOTS = {
+  quarter: ['09:00~11:00','11:00~13:00','13:00~15:00','15:00~17:00'],
+  half:    ['오전 (09:00~12:00)','오후 (13:00~17:00)'],
+  full:    ['종일 (09:00~17:00)']
+};
+const COLORS = [
+  {bg:'#E1F5EE',tx:'#085041'},{bg:'#E6F1FB',tx:'#042C53'},
+  {bg:'#FAEEDA',tx:'#633806'},{bg:'#FBEAF0',tx:'#4B1528'},
+  {bg:'#EAF3DE',tx:'#173404'},{bg:'#EEEDFE',tx:'#26215C'},
+  {bg:'#FAECE7',tx:'#4A1B0C'},{bg:'#F1EFE8',tx:'#2C2C2A'},
+  {bg:'#FCEBEB',tx:'#501313'}
+];
+
+// ── 앱 상태 ──────────────────────────────────────────────────
+let members = [];
+let allLeaves = [];
+let curUser = '';
+let curType = 'quarter';
+let curSlot = '';
+let calY, calM;
+
+// ── 초기화 ───────────────────────────────────────────────────
+window.onload = async () => {
+  const now = new Date();
+  calY = now.getFullYear(); calM = now.getMonth();
+  setTodayDefault();
+  renderSlots();
+
+  if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbycadDFf8e0FdSwyIwCAyR6EYou6LTHBCi0YAWdGOUsLivzy7DFHJYDbc6G6RZVZMFB/exec') {
+    // 데모 모드 (샘플 데이터)
+    loadDemoData();
+    return;
+  }
+  document.getElementById('setup-banner').classList.add('hidden');
+  await loadMembers();
+  await loadAllLeaves();
+  renderDashboard();
+  renderTeam();
+};
+
+function loadDemoData() {
+  members = [
+    {name:'나우진', role:'관리자', totalDays:15},
+    {name:'우수리', role:'일반',   totalDays:15},
+    {name:'한용수', role:'일반',   totalDays:15},
+    {name:'박다솜', role:'일반',   totalDays:15},
+    {name:'정효정', role:'일반',   totalDays:15},
+    {name:'서룡',   role:'일반',   totalDays:15},
+    {name:'유샛별', role:'일반',   totalDays:15},
+    {name:'이향',   role:'일반',   totalDays:15},
+    {name:'고단비', role:'일반',   totalDays:15}
+  ];
+  allLeaves = [];
+  populateUserSelect();
+  renderDashboard();
+  renderTeam();
+}
+
+// ── API 호출 ─────────────────────────────────────────────────
+async function api(params) {
+  const url = SCRIPT_URL + '?' + new URLSearchParams(params);
+  const res = await fetch(url);
+  return res.json();
+}
+async function apiPost(body) {
+  const res = await fetch(SCRIPT_URL, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  return res.json();
+}
+
+async function loadMembers() {
+  const data = await api({action:'getMembers'});
+  members = data.members || [];
+  populateUserSelect();
+}
+async function loadAllLeaves() {
+  const data = await api({action:'getAllLeaves'});
+  allLeaves = data.leaves || [];
+}
+
+// ── 사용자 선택 ──────────────────────────────────────────────
+function populateUserSelect() {
+  const sel = document.getElementById('userSelect');
+  sel.innerHTML = members.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
+  curUser = members[0]?.name || '';
+  onUserChange();
+}
+function onUserChange() {
+  curUser = document.getElementById('userSelect').value;
+  const m = members.find(x=>x.name===curUser);
+  const badge = document.getElementById('roleBadge');
+  const adminBtn = document.getElementById('adminNavBtn');
+  if (m?.role === '관리자') {
+    badge.textContent='관리자'; badge.className='role-badge admin';
+    adminBtn.style.display='';
+  } else {
+    badge.textContent='일반'; badge.className='role-badge';
+    adminBtn.style.display='none';
+  }
+  renderDashboard();
+  renderApplyRemain();
+}
+
+// ── 페이지 전환 ──────────────────────────────────────────────
+function goPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  if (id==='calendar') renderCalendar();
+  if (id==='admin')    renderAdmin();
+  if (id==='apply')    renderApplyRemain();
+}
+
+// ── 대시보드 ─────────────────────────────────────────────────
+function renderDashboard() {
+  const m = members.find(x=>x.name===curUser);
+  if (!m) return;
+  const total = m.totalDays * HOURS_PER_DAY;
+  const myLeaves = allLeaves.filter(l=>l.user===curUser && l.status!=='반려');
+  const used = myLeaves.reduce((s,l)=>s+Number(l.hours),0);
+  const usedDays = (used/HOURS_PER_DAY).toFixed(1);
+  const remDays  = ((total-used)/HOURS_PER_DAY).toFixed(1);
+  const pending  = allLeaves.filter(l=>l.user===curUser && l.status==='대기').length;
+  const pct = Math.min(100,Math.round(used/total*100));
+  const fillColor = pct>80?'var(--red)':pct>50?'var(--amber)':'var(--green)';
+
+  document.getElementById('metrics').innerHTML = `
+    <div class="metric"><div class="val">${m.totalDays}</div><div class="lbl">연간 부여일수</div></div>
+    <div class="metric"><div class="val">${usedDays}</div><div class="lbl">사용일수</div></div>
+    <div class="metric"><div class="val" style="color:var(--green)">${remDays}</div><div class="lbl">잔여일수</div></div>
+    <div class="metric"><div class="val" style="color:var(--amber)">${pending}</div><div class="lbl">승인대기</div></div>
+  `;
+  document.getElementById('dashProg').innerHTML = `
+    <div class="prog-info"><span>사용 ${usedDays}일 / ${m.totalDays}일</span><span style="color:var(--green);font-weight:500">잔여 ${remDays}일</span></div>
+    <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${fillColor}"></div></div>
+  `;
+
+  const myAll = allLeaves.filter(l=>l.user===curUser);
+  const tbody = document.getElementById('myTable');
+  if (!myAll.length) {
+    tbody.innerHTML='<tr class="empty-row"><td colspan="6">신청 내역이 없습니다</td></tr>'; return;
+  }
+  tbody.innerHTML = myAll.map(l=>`
+    <tr>
+      <td>${l.date}</td>
+      <td>${TYPE_LABEL[l.type]||l.type}</td>
+      <td>${l.slot}</td>
+      <td>${l.reason||'—'}</td>
+      <td><span class="badge ${l.status==='승인'?'b-ok':l.status==='반려'?'b-rej':'b-wait'}">${l.status}</span></td>
+      <td>${l.status==='대기'?`<button class="btn-sm cancel" onclick="cancelLeave('${l.id}')">취소</button>`:'—'}</td>
+    </tr>
+  `).join('');
+}
+
+// ── 연가 신청 ────────────────────────────────────────────────
+function setTodayDefault() {
+  const t = new Date();
+  document.getElementById('applyDate').value = t.toISOString().slice(0,10);
+  const y = t.getFullYear();
+  document.getElementById('applyDate').min = `${y}-01-01`;
+  document.getElementById('applyDate').max = `${y}-12-31`;
+}
+
+function pickType(type, el) {
+  curType = type; curSlot = '';
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  renderSlots();
+}
+function renderSlots() {
+  document.getElementById('timeSlots').innerHTML = SLOTS[curType].map(s=>
+    `<div class="slot${s===curSlot?' sel':''}" onclick="pickSlot('${s}',this)">${s}</div>`
+  ).join('');
+}
+function pickSlot(s, el) {
+  curSlot = s;
+  document.querySelectorAll('.slot').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function renderApplyRemain() {
+  const m = members.find(x=>x.name===curUser); if(!m) return;
+  const used = allLeaves.filter(l=>l.user===curUser&&l.status!=='반려').reduce((s,l)=>s+Number(l.hours),0);
+  const usedDays = (used/HOURS_PER_DAY).toFixed(1);
+  const remDays  = (m.totalDays - used/HOURS_PER_DAY).toFixed(1);
+  const pct = Math.min(100,Math.round(used/(m.totalDays*HOURS_PER_DAY)*100));
+  const fillColor = pct>80?'var(--red)':pct>50?'var(--amber)':'var(--green)';
+  document.getElementById('applyRemain').innerHTML = `
+    <div class="card-title"><i class="ti ti-chart-bar" style="font-size:16px;color:var(--tx2)"></i>${curUser}님 잔여 연가</div>
+    <div class="prog-info"><span style="font-size:12px;color:var(--tx2)">사용 ${usedDays}일 / ${m.totalDays}일</span><span style="font-size:13px;font-weight:500;color:var(--green)">잔여 ${remDays}일</span></div>
+    <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${fillColor}"></div></div>
+  `;
+}
+
+async function submitLeave() {
+  const date = document.getElementById('applyDate').value;
+  const reason = document.getElementById('applyReason').value;
+  if (!date) { toast('날짜를 선택해주세요'); return; }
+  if (!curSlot) { toast('시간대를 선택해주세요'); return; }
+
+  const m = members.find(x=>x.name===curUser);
+  const used = allLeaves.filter(l=>l.user===curUser&&l.status!=='반려').reduce((s,l)=>s+Number(l.hours),0);
+  if (used + TYPE_HOURS[curType] > m.totalDays * HOURS_PER_DAY) {
+    toast('잔여 연가가 부족합니다'); return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+
+  if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbycadDFf8e0FdSwyIwCAyR6EYou6LTHBCi0YAWdGOUsLivzy7DFHJYDbc6G6RZVZMFB/exec') {
+    // 데모 모드 로컬 저장
+    allLeaves.push({id:Date.now().toString(),user:curUser,date,type:curType,slot:curSlot,reason,status:'대기',hours:TYPE_HOURS[curType]});
+  } else {
+    const res = await apiPost({action:'applyLeave',user:curUser,date,type:curType,slot:curSlot,reason,hours:TYPE_HOURS[curType]});
+    if (res.error) { toast('오류: '+res.error); btn.disabled=false; return; }
+    await loadAllLeaves();
+  }
+
+  document.getElementById('applyReason').value='';
+  curSlot=''; renderSlots();
+  renderDashboard(); renderApplyRemain(); renderTeam();
+  toast('✓ 연가 신청이 완료되었습니다');
+  btn.disabled = false;
+}
+
+async function cancelLeave(id) {
+  if (!confirm('신청을 취소하시겠습니까?')) return;
+  if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbycadDFf8e0FdSwyIwCAyR6EYou6LTHBCi0YAWdGOUsLivzy7DFHJYDbc6G6RZVZMFB/exec') {
+    allLeaves = allLeaves.filter(l=>l.id!==id);
+  } else {
+    const res = await apiPost({action:'deleteLeave',id});
+    if (res.error) { toast('오류: '+res.error); return; }
+    await loadAllLeaves();
+  }
+  renderDashboard(); renderTeam(); toast('취소되었습니다');
+}
+
+// ── 관리자 ───────────────────────────────────────────────────
+function renderAdmin() {
+  const tbody = document.getElementById('adminTable');
+  if (!allLeaves.length) {
+    tbody.innerHTML='<tr class="empty-row"><td colspan="7">신청 내역이 없습니다</td></tr>'; return;
+  }
+  tbody.innerHTML = allLeaves.map(l=>`
+    <tr>
+      <td>${l.user}</td>
+      <td>${l.date}</td>
+      <td>${TYPE_LABEL[l.type]||l.type}</td>
+      <td>${l.slot}</td>
+      <td>${l.reason||'—'}</td>
+      <td><span class="badge ${l.status==='승인'?'b-ok':l.status==='반려'?'b-rej':'b-wait'}">${l.status}</span></td>
+      <td style="white-space:nowrap">${l.status==='대기'?`
+        <button class="btn-sm approve" onclick="processLeave('${l.id}','승인')">승인</button>
+        <button class="btn-sm reject"  onclick="processLeave('${l.id}','반려')">반려</button>`:'—'}</td>
+    </tr>
+  `).join('');
+}
+
+async function processLeave(id, status) {
+  if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbycadDFf8e0FdSwyIwCAyR6EYou6LTHBCi0YAWdGOUsLivzy7DFHJYDbc6G6RZVZMFB/exec') {
+    const l = allLeaves.find(x=>x.id===id); if(l) l.status=status;
+  } else {
+    const res = await apiPost({action:'processLeave',id,status});
+    if (res.error) { toast('오류: '+res.error); return; }
+    await loadAllLeaves();
+  }
+  renderAdmin(); renderDashboard(); renderTeam();
+  toast(status==='승인'?'✓ 승인되었습니다':'반려되었습니다');
+}
+
+// ── 캘린더 ───────────────────────────────────────────────────
+function prevMon(){calM--;if(calM<0){calM=11;calY--;}renderCalendar();}
+function nextMon(){calM++;if(calM>11){calM=0;calY++;}renderCalendar();}
+
+function renderCalendar() {
+  const mn=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  document.getElementById('calTitle').textContent=`${calY}년 ${mn[calM]}`;
+  const days=['일','월','화','수','목','금','토'];
+  const heads = days.map(d=>`<div class="cal-head">${d}</div>`).join('');
+  const first = new Date(calY,calM,1).getDay();
+  const last  = new Date(calY,calM+1,0).getDate();
+  const today = new Date();
+
+  const monthLeaves = allLeaves.filter(l=>{
+    const d=new Date(l.date); return d.getFullYear()===calY&&d.getMonth()===calM&&l.status!=='반려';
+  });
+
+  let cells='';
+  for(let i=0;i<first;i++) cells+=`<div class="cal-cell other"></div>`;
+  for(let d=1;d<=last;d++){
+    const isToday=today.getFullYear()===calY&&today.getMonth()===calM&&today.getDate()===d;
+    const dl=monthLeaves.filter(l=>new Date(l.date).getDate()===d);
+    const evts=dl.slice(0,3).map(l=>{
+      const mi=members.findIndex(x=>x.name===l.user);
+      const c=COLORS[mi%COLORS.length];
+      return `<div class="cal-evt" style="background:${c.bg};color:${c.tx}">${l.user}</div>`;
+    }).join('');
+    const more=dl.length>3?`<div style="font-size:10px;color:var(--tx3)">+${dl.length-3}</div>`:'';
+    cells+=`<div class="cal-cell${isToday?' today':''}"><div class="dn">${d}</div>${evts}${more}</div>`;
+  }
+  document.getElementById('calGrid').innerHTML = heads+cells;
+}
+
+// ── 팀현황 ───────────────────────────────────────────────────
+function renderTeam() {
+  const html = members.map((m,i)=>{
+    const used=allLeaves.filter(l=>l.user===m.name&&l.status!=='반려').reduce((s,l)=>s+Number(l.hours),0);
+    const usedDays=(used/HOURS_PER_DAY).toFixed(1);
+    const remDays=(m.totalDays-used/HOURS_PER_DAY).toFixed(1);
+    const pct=Math.min(100,Math.round(used/(m.totalDays*HOURS_PER_DAY)*100));
+    const fillColor=pct>80?'var(--red)':pct>50?'var(--amber)':'var(--green)';
+    const c=COLORS[i%COLORS.length];
+    return `<div class="member-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div class="m-avatar" style="background:${c.bg};color:${c.tx}">${m.name.charAt(0)}</div>
+        <div>
+          <div class="m-name">${m.name}</div>
+          <div class="m-sub">RISE사업단 · ${m.role}</div>
+        </div>
+      </div>
+      <div class="prog-info"><span style="font-size:11px;color:var(--tx2)">사용 ${usedDays}일</span><span style="font-size:12px;font-weight:500;color:var(--green)">잔여 ${remDays}일</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${100-pct}%;background:${fillColor}"></div></div>
+    </div>`;
+  }).join('');
+  document.getElementById('teamGrid').innerHTML=html;
+}
+
+// ── 유틸 ────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+function showSetupGuide() {
+  alert(`Google Sheets 연동 설정 방법:\n\n1. Google Sheets 새 파일 생성\n2. 확장 프로그램 → Apps Script 열기\n3. Code.gs 내용 붙여넣기\n4. SHEET_ID를 Sheets URL의 ID로 교체\n5. setupSheets() 함수 1회 실행\n6. 배포 → 새 배포 → 웹앱으로 배포\n7. 배포 URL을 index.html의 SCRIPT_URL에 붙여넣기`);
+}
+</script>
+</body>
+</html>
