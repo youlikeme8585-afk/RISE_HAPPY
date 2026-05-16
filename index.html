@@ -6,7 +6,6 @@
 <title>RISE사업단 연가 관리</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.4.0/dist/tabler-icons.min.css">
 <style>
-/* ── 리셋 & 변수 ─────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#fff;--bg2:#f8f7f4;--bg3:#f0efe9;
@@ -30,8 +29,6 @@
   }
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Pretendard,sans-serif;background:var(--bg3);color:var(--tx);font-size:14px;line-height:1.6}
-
-/* ── 상단바 ─────────────────────────────────────────────── */
 .topbar{background:var(--bg);border-bottom:.5px solid var(--br);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;gap:12px}
 .topbar-left{display:flex;align-items:center;gap:10px}
 .topbar h1{font-size:15px;font-weight:500;display:flex;align-items:center;gap:7px;white-space:nowrap}
@@ -39,37 +36,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Pretendard,sans-ser
 .user-select-wrap{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .role-badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500;background:var(--gl);color:var(--gd)}
 .role-badge.admin{background:var(--bl);color:var(--bd)}
-
-/* ── 네비 ───────────────────────────────────────────────── */
 .nav-wrap{padding:14px 24px 0}
 .nav{display:flex;gap:3px;background:var(--bg2);padding:3px;border-radius:var(--r8);max-width:580px}
 .nav button{flex:1;padding:7px 6px;border:none;background:transparent;border-radius:6px;font-size:13px;cursor:pointer;color:var(--tx2);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
 .nav button.active{background:var(--bg);color:var(--tx);font-weight:500;border:.5px solid var(--br)}
 .nav button i{font-size:15px}
-
-/* ── 페이지 ─────────────────────────────────────────────── */
 .page{display:none;padding:16px 24px 48px}
 .page.active{display:block}
-
-/* ── 카드 ───────────────────────────────────────────────── */
 .card{background:var(--bg);border:.5px solid var(--br);border-radius:var(--r12);padding:18px;margin-bottom:14px}
 .card-title{font-size:14px;font-weight:500;margin-bottom:14px;display:flex;align-items:center;gap:6px}
 .card-title i{color:var(--tx2);font-size:16px}
-
-/* ── 메트릭 ─────────────────────────────────────────────── */
 .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
 @media(max-width:600px){.metrics{grid-template-columns:repeat(2,1fr)}}
 .metric{background:var(--bg2);border-radius:var(--r8);padding:14px 12px;text-align:center}
 .metric .val{font-size:26px;font-weight:500;line-height:1.1}
 .metric .lbl{font-size:11px;color:var(--tx2);margin-top:4px}
-
-/* ── 프로그레스 ─────────────────────────────────────────── */
 .prog-wrap{margin-top:8px}
 .prog-info{display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-bottom:5px}
 .prog-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
 .prog-fill{height:100%;border-radius:3px;transition:width .4s}
-
-/* ── 테이블 ─────────────────────────────────────────────── */
 .table-wrap{overflow-x:auto}
 table{width:100%;font-size:13px;border-collapse:collapse;min-width:500px}
 th{text-align:left;padding:8px 10px;font-weight:500;font-size:11px;color:var(--tx2);border-bottom:.5px solid var(--br);white-space:nowrap}
@@ -77,14 +62,10 @@ td{padding:9px 10px;border-bottom:.5px solid var(--br);color:var(--tx);vertical-
 tr:last-child td{border-bottom:none}
 tbody tr:hover td{background:var(--bg2)}
 .empty-row td{text-align:center;color:var(--tx3);padding:28px}
-
-/* ── 배지 ───────────────────────────────────────────────── */
 .badge{display:inline-block;font-size:11px;padding:3px 9px;border-radius:10px;font-weight:500;white-space:nowrap}
 .b-wait{background:var(--al);color:var(--ad)}
 .b-ok{background:var(--gl);color:var(--gd)}
 .b-rej{background:var(--rl);color:var(--rd)}
-
-/* ── 폼 ─────────────────────────────────────────────────── */
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:500px){.form-grid{grid-template-columns:1fr}}
 .form-group{display:flex;flex-direction:column;gap:5px}
@@ -101,8 +82,6 @@ select:focus,input:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(29,
 .slot:hover:not(.sel){border-color:var(--br2)}
 .notice{background:var(--gl);border:.5px solid rgba(29,158,117,.3);border-radius:var(--r8);padding:10px 14px;font-size:12px;color:var(--gd);margin-bottom:14px;display:flex;align-items:flex-start;gap:8px}
 .notice i{flex-shrink:0;font-size:15px;margin-top:1px}
-
-/* ── 버튼 ───────────────────────────────────────────────── */
 .btn-primary{padding:9px 22px;background:var(--green);color:#fff;border:none;border-radius:var(--r8);font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;display:inline-flex;align-items:center;gap:6px}
 .btn-primary:hover{background:#0F6E56}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
@@ -114,8 +93,6 @@ select:focus,input:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(29,
 .btn-sm.reject:hover{background:var(--rl)}
 .btn-sm.cancel{border-color:var(--tx3);color:var(--tx3)}
 .btn-sm.cancel:hover{background:var(--bg2)}
-
-/* ── 캘린더 ─────────────────────────────────────────────── */
 .cal-ctrl{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .cal-ctrl .mon{font-size:15px;font-weight:500;flex:1;text-align:center}
 .cal-ctrl button{padding:5px 12px;border:.5px solid var(--br);border-radius:var(--r8);background:var(--bg);cursor:pointer;font-size:14px;color:var(--tx);transition:all .15s}
@@ -127,38 +104,28 @@ select:focus,input:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(29,
 .cal-cell.other{opacity:.45}
 .cal-cell .dn{font-size:11px;font-weight:500;margin-bottom:3px}
 .cal-evt{font-size:10px;padding:2px 5px;border-radius:3px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-
-/* ── 팀현황 ─────────────────────────────────────────────── */
 .team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 @media(max-width:600px){.team-grid{grid-template-columns:repeat(2,1fr)}}
 .member-card{background:var(--bg);border:.5px solid var(--br);border-radius:var(--r12);padding:14px}
-.m-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;margin-bottom:9px;flex-shrink:0}
+.m-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;flex-shrink:0}
 .m-name{font-size:14px;font-weight:500;margin-bottom:2px}
 .m-sub{font-size:12px;color:var(--tx2);margin-bottom:9px}
-
-/* ── 로딩 ───────────────────────────────────────────────── */
 .loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:32px;color:var(--tx2);font-size:13px}
 .spinner{width:18px;height:18px;border:2px solid var(--br);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* ── 토스트 ─────────────────────────────────────────────── */
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--tx);color:var(--bg);padding:10px 20px;border-radius:var(--r8);font-size:13px;transition:transform .3s;z-index:999;white-space:nowrap;pointer-events:none}
 #toast.show{transform:translateX(-50%) translateY(0)}
-
-/* ── 설정 없음 배너 ─────────────────────────────────────── */
 #setup-banner{background:#FAEEDA;border:.5px solid #FAC775;border-radius:var(--r8);padding:12px 16px;margin:16px 24px 0;font-size:13px;color:#633806;display:flex;align-items:center;gap:10px}
 #setup-banner.hidden{display:none}
 </style>
 </head>
 <body>
 
-<!-- ⚠️ API URL 미설정 배너 -->
 <div id="setup-banner">
   <i class="ti ti-alert-triangle" style="font-size:17px;flex-shrink:0"></i>
-  <span><strong>설정 필요:</strong> 아래 <code>SCRIPT_URL</code>을 Google Apps Script 배포 URL로 교체해야 합니다. <a href="#" onclick="showSetupGuide()" style="color:#854F0B;font-weight:500">설정 방법 보기</a></span>
+  <span><strong>설정 필요:</strong> index.html의 <code>SCRIPT_URL</code>을 Google Apps Script 배포 URL로 교체하세요.</span>
 </div>
 
-<!-- 상단바 -->
 <div class="topbar">
   <div class="topbar-left">
     <h1><i class="ti ti-calendar-check"></i>RISE사업단 연가 관리</h1>
@@ -171,7 +138,6 @@ select:focus,input:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(29,
   </div>
 </div>
 
-<!-- 네비 -->
 <div class="nav-wrap">
   <div class="nav">
     <button class="active" onclick="goPage('dashboard',this)"><i class="ti ti-home"></i>대시보드</button>
@@ -182,7 +148,6 @@ select:focus,input:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(29,
   </div>
 </div>
 
-<!-- 대시보드 -->
 <div class="page active" id="page-dashboard">
   <div class="metrics" id="metrics">
     <div class="metric"><div class="val">—</div><div class="lbl">연간 부여일수</div></div>
@@ -203,7 +168,6 @@ select:focus,input:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(29,
   </div>
 </div>
 
-<!-- 연가신청 -->
 <div class="page" id="page-apply">
   <div class="card">
     <div class="card-title"><i class="ti ti-pencil"></i>연가 신청</div>
@@ -237,7 +201,6 @@ select:focus,input:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(29,
   <div class="card" id="applyRemain"></div>
 </div>
 
-<!-- 캘린더 -->
 <div class="page" id="page-calendar">
   <div class="card">
     <div class="cal-ctrl">
@@ -249,7 +212,6 @@ select:focus,input:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(29,
   </div>
 </div>
 
-<!-- 관리자 -->
 <div class="page" id="page-admin">
   <div class="card">
     <div class="card-title"><i class="ti ti-shield-check"></i>전체 연가 신청 내역 (관리자)</div>
@@ -262,7 +224,6 @@ select:focus,input:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(29,
   </div>
 </div>
 
-<!-- 팀현황 -->
 <div class="page" id="page-team">
   <div class="card">
     <div class="card-title"><i class="ti ti-users"></i>팀원 연가 현황</div>
@@ -270,17 +231,15 @@ select:focus,input:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(29,
   </div>
 </div>
 
-<!-- 토스트 -->
 <div id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════════════════════════
-//  ★ 여기에 Google Apps Script 배포 URL을 붙여넣으세요 ★
-// ══════════════════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbycadDFf8e0FdSwyIwCAyR6EYou6LTHBCi0YAWdGOUsLivzy7DFHJYDbc6G6RZVZMFB/exec';
-// 예시: 'https://script.google.com/macros/s/AKfycb.../exec'
+// ★ 여기에 Google Apps Script 배포 URL을 붙여넣으세요 ★
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx_zKF5pAyDuUmR2JvKQD2OholLbbiIMKvcyVPvSpDVywy6eRYAVCLIdNYHHBMBtn31/exec';
 
-// ── 상수 ────────────────────────────────────────────────────
+// ── 데모 여부는 이 한 줄로만 판단 ──────────────────────────
+const IS_DEMO = (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbx_zKF5pAyDuUmR2JvKQD2OholLbbiIMKvcyVPvSpDVywy6eRYAVCLIdNYHHBMBtn31/exec');
+
 const HOURS_PER_DAY = 8;
 const TYPE_HOURS  = { quarter:2, half:3, full:8 };
 const TYPE_LABEL  = { quarter:'1/4연차', half:'1/2연차', full:'종일연차' };
@@ -297,7 +256,6 @@ const COLORS = [
   {bg:'#FCEBEB',tx:'#501313'}
 ];
 
-// ── 앱 상태 ──────────────────────────────────────────────────
 let members = [];
 let allLeaves = [];
 let curUser = '';
@@ -305,18 +263,17 @@ let curType = 'quarter';
 let curSlot = '';
 let calY, calM;
 
-// ── 초기화 ───────────────────────────────────────────────────
 window.onload = async () => {
   const now = new Date();
   calY = now.getFullYear(); calM = now.getMonth();
   setTodayDefault();
   renderSlots();
 
-  if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbycadDFf8e0FdSwyIwCAyR6EYou6LTHBCi0YAWdGOUsLivzy7DFHJYDbc6G6RZVZMFB/exec') {
-    // 데모 모드 (샘플 데이터)
+  if (IS_DEMO) {
     loadDemoData();
     return;
   }
+
   document.getElementById('setup-banner').classList.add('hidden');
   await loadMembers();
   await loadAllLeaves();
@@ -342,7 +299,6 @@ function loadDemoData() {
   renderTeam();
 }
 
-// ── API 호출 ─────────────────────────────────────────────────
 async function api(params) {
   const url = SCRIPT_URL + '?' + new URLSearchParams(params);
   const res = await fetch(url);
@@ -367,7 +323,6 @@ async function loadAllLeaves() {
   allLeaves = data.leaves || [];
 }
 
-// ── 사용자 선택 ──────────────────────────────────────────────
 function populateUserSelect() {
   const sel = document.getElementById('userSelect');
   sel.innerHTML = members.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
@@ -390,7 +345,6 @@ function onUserChange() {
   renderApplyRemain();
 }
 
-// ── 페이지 전환 ──────────────────────────────────────────────
 function goPage(id, btn) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
@@ -401,7 +355,6 @@ function goPage(id, btn) {
   if (id==='apply')    renderApplyRemain();
 }
 
-// ── 대시보드 ─────────────────────────────────────────────────
 function renderDashboard() {
   const m = members.find(x=>x.name===curUser);
   if (!m) return;
@@ -442,7 +395,6 @@ function renderDashboard() {
   `).join('');
 }
 
-// ── 연가 신청 ────────────────────────────────────────────────
 function setTodayDefault() {
   const t = new Date();
   document.getElementById('applyDate').value = t.toISOString().slice(0,10);
@@ -497,8 +449,7 @@ async function submitLeave() {
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
 
-  if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbycadDFf8e0FdSwyIwCAyR6EYou6LTHBCi0YAWdGOUsLivzy7DFHJYDbc6G6RZVZMFB/exec') {
-    // 데모 모드 로컬 저장
+  if (IS_DEMO) {
     allLeaves.push({id:Date.now().toString(),user:curUser,date,type:curType,slot:curSlot,reason,status:'대기',hours:TYPE_HOURS[curType]});
   } else {
     const res = await apiPost({action:'applyLeave',user:curUser,date,type:curType,slot:curSlot,reason,hours:TYPE_HOURS[curType]});
@@ -515,7 +466,7 @@ async function submitLeave() {
 
 async function cancelLeave(id) {
   if (!confirm('신청을 취소하시겠습니까?')) return;
-  if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbycadDFf8e0FdSwyIwCAyR6EYou6LTHBCi0YAWdGOUsLivzy7DFHJYDbc6G6RZVZMFB/exec') {
+  if (IS_DEMO) {
     allLeaves = allLeaves.filter(l=>l.id!==id);
   } else {
     const res = await apiPost({action:'deleteLeave',id});
@@ -525,7 +476,6 @@ async function cancelLeave(id) {
   renderDashboard(); renderTeam(); toast('취소되었습니다');
 }
 
-// ── 관리자 ───────────────────────────────────────────────────
 function renderAdmin() {
   const tbody = document.getElementById('adminTable');
   if (!allLeaves.length) {
@@ -547,7 +497,7 @@ function renderAdmin() {
 }
 
 async function processLeave(id, status) {
-  if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbycadDFf8e0FdSwyIwCAyR6EYou6LTHBCi0YAWdGOUsLivzy7DFHJYDbc6G6RZVZMFB/exec') {
+  if (IS_DEMO) {
     const l = allLeaves.find(x=>x.id===id); if(l) l.status=status;
   } else {
     const res = await apiPost({action:'processLeave',id,status});
@@ -558,7 +508,6 @@ async function processLeave(id, status) {
   toast(status==='승인'?'✓ 승인되었습니다':'반려되었습니다');
 }
 
-// ── 캘린더 ───────────────────────────────────────────────────
 function prevMon(){calM--;if(calM<0){calM=11;calY--;}renderCalendar();}
 function nextMon(){calM++;if(calM>11){calM=0;calY++;}renderCalendar();}
 
@@ -591,7 +540,6 @@ function renderCalendar() {
   document.getElementById('calGrid').innerHTML = heads+cells;
 }
 
-// ── 팀현황 ───────────────────────────────────────────────────
 function renderTeam() {
   const html = members.map((m,i)=>{
     const used=allLeaves.filter(l=>l.user===m.name&&l.status!=='반려').reduce((s,l)=>s+Number(l.hours),0);
@@ -615,17 +563,12 @@ function renderTeam() {
   document.getElementById('teamGrid').innerHTML=html;
 }
 
-// ── 유틸 ────────────────────────────────────────────────────
 let toastTimer;
 function toast(msg) {
   const el=document.getElementById('toast');
   el.textContent=msg; el.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>el.classList.remove('show'),2800);
-}
-
-function showSetupGuide() {
-  alert(`Google Sheets 연동 설정 방법:\n\n1. Google Sheets 새 파일 생성\n2. 확장 프로그램 → Apps Script 열기\n3. Code.gs 내용 붙여넣기\n4. SHEET_ID를 Sheets URL의 ID로 교체\n5. setupSheets() 함수 1회 실행\n6. 배포 → 새 배포 → 웹앱으로 배포\n7. 배포 URL을 index.html의 SCRIPT_URL에 붙여넣기`);
 }
 </script>
 </body>
