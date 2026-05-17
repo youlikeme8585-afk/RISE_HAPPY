@@ -187,7 +187,7 @@ select:focus,input:focus{border-color:var(--green)}
 
 <script>
 // ★ Apps Script 배포 URL ★
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwiJL6e0HJudjah3mRe15DcNAf3NI8IdfTpn8wNrCxbbfybqNWNb_gw0uYvu3Bs648/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbDnY33GtJJPXI64ySMOt2Ow6sL9Th22-99ufGXYv9KkojCpOflV5UH-bAQwZgzqmF/exec';
 
 const DAYS_PER_TYPE = {quarter:0.25, half:0.5, full:1};
 
@@ -219,16 +219,25 @@ async function loadAll() {
   members = md.members||[];
   approvers = md.approvers||[];
   populateUserSelect();
-  await refreshLeaves();
-  renderDashboard();
-  renderTeam();
 }
 
 function populateUserSelect() {
   const sel = document.getElementById('userSelect');
   sel.innerHTML = members.map(m=>`<option value="${m.name}">${m.name}</option>`).join('');
   curUser = members[0]?.name||'';
-  onUserChange();
+  // onUserChange 대신 직접 초기화 (approvers 보장)
+  const m = members.find(x=>x.name===curUser);
+  const badge = document.getElementById('roleBadge');
+  const adminBtn = document.getElementById('adminNavBtn');
+  const applyBtn = document.querySelector('.nav button:nth-child(2)');
+  if (m?.role==='관리자') {
+    badge.textContent='관리자'; badge.className='role-badge admin'; adminBtn.style.display='';
+    if(applyBtn) applyBtn.style.display='none';
+  } else {
+    badge.textContent='일반'; badge.className='role-badge'; adminBtn.style.display='none';
+    if(applyBtn) applyBtn.style.display='';
+  }
+  refreshLeaves().then(()=>{renderDashboard();renderTeam();});
 }
 
 async function onUserChange() {
