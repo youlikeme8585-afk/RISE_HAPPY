@@ -361,8 +361,8 @@ function renderAdmin() {
     else if(myApproverIdx===1 && l.status==='1차승인') canApprove=true;
     else if(myApproverIdx===2 && l.status==='2차승인') canApprove=true;
 
-    // 반려는 아직 최종승인/반려 아닐 때만
-    const canReject = l.status!=='승인' && l.status!=='반려' && myApproverIdx>=0;
+    // 반려는 본인 차례일 때만
+    const canReject = canApprove;
 
     return `<tr>
       <td>${l.user}</td><td>${l.date}</td><td>${TYPE_LABEL[l.type]||l.type}</td><td>${l.slot}</td><td>${l.reason||'—'}</td>
