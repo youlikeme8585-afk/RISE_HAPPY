@@ -7,17 +7,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.4.0/dist/tabler-icons.min.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#fff;--bg2:#f8f7f4;--bg3:#f0efe9;
-  --tx:#1a1a18;--tx2:#6b6a66;--tx3:#9b9a96;
-  --br:rgba(0,0,0,.12);--br2:rgba(0,0,0,.22);
-  --r8:8px;--r12:12px;
-  --green:#1D9E75;--gl:#E1F5EE;--gd:#085041;
-  --amber:#EF9F27;--al:#FAEEDA;--ad:#633806;
-  --red:#E24B4A;--rl:#FCEBEB;--rd:#A32D2D;
-  --blue:#378ADD;--bl:#E6F1FB;--bd:#042C53;
-}
-@media(prefers-color-scheme:dark){:root{--bg:#1e1e1c;--bg2:#2a2a28;--bg3:#242422;--tx:#f0efe9;--tx2:#9b9a96;--tx3:#6b6a66;--br:rgba(255,255,255,.12);--br2:rgba(255,255,255,.22);--gl:#04342C;--gd:#9FE1CB;--al:#412402;--ad:#FAC775;--rl:#501313;--rd:#F7C1C1;--bl:#042C53;--bd:#B5D4F4;}}
+:root{--bg:#fff;--bg2:#f8f7f4;--bg3:#f0efe9;--tx:#1a1a18;--tx2:#6b6a66;--tx3:#9b9a96;--br:rgba(0,0,0,.12);--br2:rgba(0,0,0,.22);--r8:8px;--r12:12px;--green:#1D9E75;--gl:#E1F5EE;--gd:#085041;--amber:#EF9F27;--al:#FAEEDA;--ad:#633806;--red:#E24B4A;--rl:#FCEBEB;--rd:#A32D2D;--blue:#378ADD;--bl:#E6F1FB;--bd:#042C53;}
+@media(prefers-color-scheme:dark){:root{--bg:#1e1e1c;--bg2:#2a2a28;--bg3:#242422;--tx:#f0efe9;--tx2:#9b9a96;--tx3:#6b6a66;--br:rgba(255,255,255,.12);--gl:#04342C;--gd:#9FE1CB;--al:#412402;--ad:#FAC775;--rl:#501313;--rd:#F7C1C1;--bl:#042C53;--bd:#B5D4F4;}}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--tx);font-size:14px;line-height:1.6}
 .topbar{background:var(--bg);border-bottom:.5px solid var(--br);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;gap:12px}
 .topbar h1{font-size:15px;font-weight:500;display:flex;align-items:center;gap:7px;white-space:nowrap}
@@ -67,7 +58,6 @@ select:focus,input:focus{border-color:var(--green)}
 .time-slots{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
 .slot{padding:7px 14px;border:.5px solid var(--br);border-radius:var(--r8);font-size:12px;cursor:pointer;background:var(--bg);color:var(--tx2);transition:all .15s}
 .slot.sel{background:var(--gl);border-color:var(--green);color:var(--gd)}
-.notice{background:var(--gl);border:.5px solid rgba(29,158,117,.3);border-radius:var(--r8);padding:10px 14px;font-size:12px;color:var(--gd);margin-bottom:14px;display:flex;align-items:flex-start;gap:8px}
 .btn-primary{padding:9px 22px;background:var(--green);color:#fff;border:none;border-radius:var(--r8);font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;display:inline-flex;align-items:center;gap:6px}
 .btn-primary:hover{background:#0F6E56}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
@@ -110,7 +100,7 @@ select:focus,input:focus{border-color:var(--green)}
 <div class="nav-wrap">
   <div class="nav">
     <button class="active" onclick="goPage('dashboard',this)"><i class="ti ti-home"></i>대시보드</button>
-    <button onclick="goPage('apply',this)"><i class="ti ti-plus"></i>연가신청</button>
+    <button id="applyNavBtn" onclick="goPage('apply',this)"><i class="ti ti-plus"></i>연가신청</button>
     <button onclick="goPage('calendar',this)"><i class="ti ti-calendar"></i>캘린더</button>
     <button id="adminNavBtn" onclick="goPage('admin',this)" style="display:none"><i class="ti ti-shield"></i>관리자</button>
     <button onclick="goPage('team',this)"><i class="ti ti-users"></i>팀현황</button>
@@ -137,7 +127,6 @@ select:focus,input:focus{border-color:var(--green)}
 <div class="page" id="page-apply">
   <div class="card">
     <div class="card-title"><i class="ti ti-pencil"></i>연가 신청</div>
-    
     <div class="form-grid" style="margin-bottom:14px">
       <div class="form-group"><label>신청 날짜</label><input type="date" id="applyDate"></div>
       <div class="form-group"><label>연가 종류</label>
@@ -186,12 +175,9 @@ select:focus,input:focus{border-color:var(--green)}
 <div id="toast"></div>
 
 <script>
-// ★ Apps Script 배포 URL ★
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbDnY33GtJJPXI64ySMOt2Ow6sL9Th22-99ufGXYv9KkojCpOflV5UH-bAQwZgzqmF/exec';
-
 const DAYS_PER_TYPE = {quarter:0.25, half:0.5, full:1};
-
-const TYPE_LABEL = {quarter:'1/4연차',half:'1/2연차',full:'종일연차'};
+const TYPE_LABEL = {quarter:'1/4연차', half:'1/2연차', full:'종일연차'};
 const SLOTS = {
   quarter:['09:00~11:00','11:00~13:00','13:00~15:00','15:00~17:00'],
   half:['오전 (09:00~13:00)','오후 (13:00~17:00)'],
@@ -199,65 +185,71 @@ const SLOTS = {
 };
 const COLORS=[{bg:'#E1F5EE',tx:'#085041'},{bg:'#E6F1FB',tx:'#042C53'},{bg:'#FAEEDA',tx:'#633806'},{bg:'#FBEAF0',tx:'#4B1528'},{bg:'#EAF3DE',tx:'#173404'},{bg:'#EEEDFE',tx:'#26215C'},{bg:'#FAECE7',tx:'#4A1B0C'},{bg:'#F1EFE8',tx:'#2C2C2A'},{bg:'#FCEBEB',tx:'#501313'},{bg:'#E1F5EE',tx:'#085041'}];
 
-let members=[],allLeaves=[],approvers=[],curUser='',curType='quarter',curSlot='',calY,calM;
+// 전역 상태
+let members = [];
+let allLeaves = [];
+let APPROVERS = []; // 순차 승인자 목록 (서버에서 받아옴)
+let curUser = '';
+let curType = 'quarter';
+let curSlot = '';
+let calY, calM;
 
 async function api(params) {
-  const url = SCRIPT_URL+'?'+new URLSearchParams(params);
+  const url = SCRIPT_URL + '?' + new URLSearchParams(params);
   const res = await fetch(url);
   return res.json();
 }
 
 window.onload = async () => {
   const now = new Date();
-  calY=now.getFullYear(); calM=now.getMonth();
+  calY = now.getFullYear(); calM = now.getMonth();
   setTodayDefault(); renderSlots();
-  await loadAll();
+  await init();
 };
 
-async function loadAll() {
+// 초기화: 멤버 + 승인자 + 데이터 순서 보장
+async function init() {
   const md = await api({action:'getMembers'});
-  members = md.members||[];
-  approvers = md.approvers||[];
-  populateUserSelect();
-}
+  members = md.members || [];
+  APPROVERS = md.approvers || [];
 
-function populateUserSelect() {
   const sel = document.getElementById('userSelect');
   sel.innerHTML = members.map(m=>`<option value="${m.name}">${m.name}</option>`).join('');
-  curUser = members[0]?.name||'';
-  // onUserChange 대신 직접 초기화 (approvers 보장)
+  curUser = members[0]?.name || '';
+
+  await refreshLeaves();
+  applyUserRole();
+  renderDashboard();
+  renderTeam();
+}
+
+// 사용자 역할에 따라 UI 변경
+function applyUserRole() {
   const m = members.find(x=>x.name===curUser);
   const badge = document.getElementById('roleBadge');
   const adminBtn = document.getElementById('adminNavBtn');
-  const applyBtn = document.querySelector('.nav button:nth-child(2)');
+  const applyBtn = document.getElementById('applyNavBtn');
   if (m?.role==='관리자') {
-    badge.textContent='관리자'; badge.className='role-badge admin'; adminBtn.style.display='';
-    if(applyBtn) applyBtn.style.display='none';
+    badge.textContent='관리자'; badge.className='role-badge admin';
+    adminBtn.style.display='';
+    applyBtn.style.display='none';
   } else {
-    badge.textContent='일반'; badge.className='role-badge'; adminBtn.style.display='none';
-    if(applyBtn) applyBtn.style.display='';
+    badge.textContent='일반'; badge.className='role-badge';
+    adminBtn.style.display='none';
+    applyBtn.style.display='';
   }
-  refreshLeaves().then(()=>{renderDashboard();renderTeam();});
 }
 
 async function onUserChange() {
   curUser = document.getElementById('userSelect').value;
-  const m = members.find(x=>x.name===curUser);
-  const badge = document.getElementById('roleBadge');
-  const adminBtn = document.getElementById('adminNavBtn');
-  const applyBtn = document.querySelector('.nav button:nth-child(2)');
-  if (m?.role==='관리자') {
-    badge.textContent='관리자'; badge.className='role-badge admin'; adminBtn.style.display='';
-    if(applyBtn) applyBtn.style.display='none';
-  } else {
-    badge.textContent='일반'; badge.className='role-badge'; adminBtn.style.display='none';
-    if(applyBtn) applyBtn.style.display='';
-  }
   await refreshLeaves();
-  renderDashboard(); renderApplyRemain(); renderTeam();
+  applyUserRole();
+  renderDashboard();
+  renderApplyRemain();
+  renderTeam();
 }
 
-function goPage(id,btn) {
+function goPage(id, btn) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
@@ -267,15 +259,23 @@ function goPage(id,btn) {
   if(id==='apply') renderApplyRemain();
 }
 
+async function refreshLeaves() {
+  const m = members.find(x=>x.name===curUser);
+  const isAdmin = m?.role==='관리자';
+  const ld = isAdmin
+    ? await api({action:'getAllLeaves'})
+    : await api({action:'getLeaves', user:curUser});
+  allLeaves = ld.leaves || [];
+}
+
 function renderDashboard() {
-  const m=members.find(x=>x.name===curUser); if(!m) return;
-  const total=m.totalDays;
-  const used=allLeaves.filter(l=>l.user===curUser&&l.status!=='반려').reduce((s,l)=>s+Number(l.days||0),0);
-  const usedDays=used.toFixed(2);
-  const remDays=(total-used).toFixed(2);
-  const pending=allLeaves.filter(l=>l.user===curUser&&l.status==='대기').length;
-  const pct=Math.min(100,Math.round(used/total*100));
-  const fc=pct>80?'var(--red)':pct>50?'var(--amber)':'var(--green)';
+  const m = members.find(x=>x.name===curUser); if(!m) return;
+  const used = allLeaves.filter(l=>l.user===curUser&&l.status!=='반려').reduce((s,l)=>s+Number(l.days||0),0);
+  const usedDays = used.toFixed(2);
+  const remDays = (m.totalDays-used).toFixed(2);
+  const pending = allLeaves.filter(l=>l.user===curUser&&l.status==='대기').length;
+  const pct = Math.min(100,Math.round(used/m.totalDays*100));
+  const fc = pct>80?'var(--red)':pct>50?'var(--amber)':'var(--green)';
   document.getElementById('metrics').innerHTML=`
     <div class="metric"><div class="val">${m.totalDays}</div><div class="lbl">연간 부여일수</div></div>
     <div class="metric"><div class="val">${usedDays}</div><div class="lbl">사용일수</div></div>
@@ -284,17 +284,24 @@ function renderDashboard() {
   document.getElementById('dashProg').innerHTML=`
     <div class="prog-info"><span>사용 ${usedDays}일 / ${m.totalDays}일</span><span style="color:var(--green);font-weight:500">잔여 ${remDays}일</span></div>
     <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${fc}"></div></div>`;
-  const myAll=allLeaves.filter(l=>l.user===curUser);
-  const tbody=document.getElementById('myTable');
+  const myAll = allLeaves.filter(l=>l.user===curUser);
+  const tbody = document.getElementById('myTable');
   if(!myAll.length){tbody.innerHTML='<tr class="empty-row"><td colspan="6">신청 내역이 없습니다</td></tr>';return;}
-  tbody.innerHTML=myAll.map(l=>`<tr>
+  tbody.innerHTML = myAll.map(l=>`<tr>
     <td>${l.date}</td><td>${TYPE_LABEL[l.type]||l.type}</td><td>${l.slot}</td><td>${l.reason||'—'}</td>
-    <td><span class="badge ${l.status==='승인'?'b-ok':l.status==='반려'?'b-rej':l.status==='1차승인'||l.status==='2차승인'?'b-ing':'b-wait'}">${l.status}</span></td>
+    <td><span class="badge ${statusClass(l.status)}">${l.status}</span></td>
     <td>${l.status==='대기'?`<button class="btn-sm cancel" onclick="cancelLeave('${l.id}')">취소</button>`:'—'}</td>
   </tr>`).join('');
 }
 
-function setTodayDefault() {
+function statusClass(s){
+  if(s==='승인') return 'b-ok';
+  if(s==='반려') return 'b-rej';
+  if(s==='1차승인'||s==='2차승인') return 'b-ing';
+  return 'b-wait';
+}
+
+function setTodayDefault(){
   const t=new Date();
   document.getElementById('applyDate').value=t.toISOString().slice(0,10);
   const y=t.getFullYear();
@@ -306,20 +313,18 @@ function pickType(type,el){curType=type;curSlot='';document.querySelectorAll('.t
 function renderSlots(){document.getElementById('timeSlots').innerHTML=SLOTS[curType].map(s=>`<div class="slot${s===curSlot?' sel':''}" onclick="pickSlot('${s}',this)">${s}</div>`).join('');}
 function pickSlot(s,el){curSlot=s;document.querySelectorAll('.slot').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');}
 
-function renderApplyRemain() {
+function renderApplyRemain(){
   const m=members.find(x=>x.name===curUser); if(!m) return;
   const used=allLeaves.filter(l=>l.user===curUser&&l.status!=='반려').reduce((s,l)=>s+Number(l.days||0),0);
-  const usedDays=used.toFixed(2);
-  const remDays=(m.totalDays-used).toFixed(2);
   const pct=Math.min(100,Math.round(used/m.totalDays*100));
   const fc=pct>80?'var(--red)':pct>50?'var(--amber)':'var(--green)';
   document.getElementById('applyRemain').innerHTML=`
     <div class="card-title"><i class="ti ti-chart-bar" style="font-size:16px;color:var(--tx2)"></i>${curUser}님 잔여 연가</div>
-    <div class="prog-info"><span style="font-size:12px;color:var(--tx2)">사용 ${usedDays}일 / ${m.totalDays}일</span><span style="font-size:13px;font-weight:500;color:var(--green)">잔여 ${remDays}일</span></div>
+    <div class="prog-info"><span style="font-size:12px;color:var(--tx2)">사용 ${used.toFixed(2)}일 / ${m.totalDays}일</span><span style="font-size:13px;font-weight:500;color:var(--green)">잔여 ${(m.totalDays-used).toFixed(2)}일</span></div>
     <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${fc}"></div></div>`;
 }
 
-async function submitLeave() {
+async function submitLeave(){
   const date=document.getElementById('applyDate').value;
   const reason=document.getElementById('applyReason').value;
   if(!date){toast('날짜를 선택해주세요');return;}
@@ -339,7 +344,7 @@ async function submitLeave() {
   btn.disabled=false;
 }
 
-async function cancelLeave(id) {
+async function cancelLeave(id){
   if(!confirm('신청을 취소하시겠습니까?')) return;
   const res=await api({action:'deleteLeave',id});
   if(res.error){toast('오류: '+res.error);return;}
@@ -347,36 +352,32 @@ async function cancelLeave(id) {
   renderDashboard();renderTeam();toast('취소되었습니다');
 }
 
-function renderAdmin() {
+function renderAdmin(){
   const tbody=document.getElementById('adminTable');
   if(!allLeaves.length){tbody.innerHTML='<tr class="empty-row"><td colspan="7">신청 내역이 없습니다</td></tr>';return;}
-  const myApproverIdx = approvers.indexOf(curUser);
 
-  tbody.innerHTML=allLeaves.map(l=>{
-    const statusBadge = l.status==='승인'?'b-ok':l.status==='반려'?'b-rej':l.status==='1차승인'||l.status==='2차승인'?'b-ing':'b-wait';
+  // 현재 사용자가 몇 번째 승인자인지 (0=조아라, 1=이정수, 2=신종호, -1=승인자 아님)
+  const myIdx = APPROVERS.indexOf(curUser);
 
-    // 내 차례인지 확인
-    let canApprove = false;
-    if(myApproverIdx===0 && l.status==='대기') canApprove=true;
-    else if(myApproverIdx===1 && l.status==='1차승인') canApprove=true;
-    else if(myApproverIdx===2 && l.status==='2차승인') canApprove=true;
-
-    // 반려는 본인 차례일 때만
-    const canReject = canApprove;
+  tbody.innerHTML = allLeaves.map(l=>{
+    // 이 신청에 대해 내가 승인/반려할 수 있는지
+    let canAct = false;
+    if(myIdx===0 && l.status==='대기')    canAct=true;
+    if(myIdx===1 && l.status==='1차승인') canAct=true;
+    if(myIdx===2 && l.status==='2차승인') canAct=true;
 
     return `<tr>
       <td>${l.user}</td><td>${l.date}</td><td>${TYPE_LABEL[l.type]||l.type}</td><td>${l.slot}</td><td>${l.reason||'—'}</td>
-      <td><span class="badge ${statusBadge}">${l.status}</span></td>
+      <td><span class="badge ${statusClass(l.status)}">${l.status}</span></td>
       <td style="white-space:nowrap">
-        ${canApprove?`<button class="btn-sm approve" onclick="processLeave('${l.id}','승인')">승인</button>`:''}
-        ${canReject?`<button class="btn-sm reject" onclick="processLeave('${l.id}','반려')">반려</button>`:''}
+        ${canAct?`<button class="btn-sm approve" onclick="processLeave('${l.id}','승인')">승인</button> <button class="btn-sm reject" onclick="processLeave('${l.id}','반려')">반려</button>`:''}
         <button class="btn-sm cancel" onclick="adminDelete('${l.id}')">삭제</button>
       </td>
     </tr>`;
   }).join('');
 }
 
-async function processLeave(id,status) {
+async function processLeave(id,status){
   const res=await api({action:'processLeave',id,status,approver:curUser});
   if(res.error){toast('오류: '+res.error);return;}
   await refreshLeaves();
@@ -384,7 +385,7 @@ async function processLeave(id,status) {
   toast(status==='승인'?'✓ 승인되었습니다':'반려되었습니다');
 }
 
-async function adminDelete(id) {
+async function adminDelete(id){
   if(!confirm('이 신청을 삭제하시겠습니까?')) return;
   const res=await api({action:'adminDelete',id});
   if(res.error){toast('오류: '+res.error);return;}
@@ -392,19 +393,10 @@ async function adminDelete(id) {
   renderAdmin();renderDashboard();renderTeam();toast('삭제되었습니다');
 }
 
-async function refreshLeaves() {
-  const m = members.find(x=>x.name===curUser);
-  const isAdmin = m?.role==='관리자';
-  const ld = isAdmin
-    ? await api({action:'getAllLeaves'})
-    : await api({action:'getLeaves', user:curUser});
-  allLeaves = ld.leaves||[];
-}
-
 function prevMon(){calM--;if(calM<0){calM=11;calY--;}renderCalendar();}
 function nextMon(){calM++;if(calM>11){calM=0;calY++;}renderCalendar();}
 
-function renderCalendar() {
+function renderCalendar(){
   const mn=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   document.getElementById('calTitle').textContent=`${calY}년 ${mn[calM]}`;
   const days=['일','월','화','수','목','금','토'];
@@ -425,14 +417,12 @@ function renderCalendar() {
   document.getElementById('calGrid').innerHTML=heads+cells;
 }
 
-function renderTeam() {
-  const me = members.find(x=>x.name===curUser);
-  const isAdmin = me?.role==='관리자';
-  const showMembers = isAdmin ? members : members.filter(x=>x.name===curUser);
+function renderTeam(){
+  const me=members.find(x=>x.name===curUser);
+  const isAdmin=me?.role==='관리자';
+  const showMembers=isAdmin?members:members.filter(x=>x.name===curUser);
   document.getElementById('teamGrid').innerHTML=showMembers.map((m,i)=>{
     const used=allLeaves.filter(l=>l.user===m.name&&l.status!=='반려').reduce((s,l)=>s+Number(l.days||0),0);
-    const usedDays=used.toFixed(2);
-    const remDays=(m.totalDays-used).toFixed(2);
     const pct=Math.min(100,Math.round(used/m.totalDays*100));
     const fc=pct>80?'var(--red)':pct>50?'var(--amber)':'var(--green)';
     const c=COLORS[i%COLORS.length];
@@ -441,7 +431,7 @@ function renderTeam() {
         <div style="width:38px;height:38px;border-radius:50%;background:${c.bg};color:${c.tx};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;flex-shrink:0">${m.name.charAt(0)}</div>
         <div><div class="m-name">${m.name}</div><div class="m-sub">RISE사업단 · ${m.role}</div></div>
       </div>
-      <div class="prog-info"><span style="font-size:11px;color:var(--tx2)">사용 ${usedDays}일</span><span style="font-size:12px;font-weight:500;color:var(--green)">잔여 ${remDays}일</span></div>
+      <div class="prog-info"><span style="font-size:11px;color:var(--tx2)">사용 ${used.toFixed(2)}일</span><span style="font-size:12px;font-weight:500;color:var(--green)">잔여 ${(m.totalDays-used).toFixed(2)}일</span></div>
       <div class="prog-bar"><div class="prog-fill" style="width:${100-pct}%;background:${fc}"></div></div>
     </div>`;
   }).join('');
