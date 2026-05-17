@@ -338,14 +338,30 @@ async function cancelLeave(id) {
 function renderAdmin() {
   const tbody=document.getElementById('adminTable');
   if(!allLeaves.length){tbody.innerHTML='<tr class="empty-row"><td colspan="7">신청 내역이 없습니다</td></tr>';return;}
-  tbody.innerHTML=allLeaves.map(l=>`<tr>
-    <td>${l.user}</td><td>${l.date}</td><td>${TYPE_LABEL[l.type]||l.type}</td><td>${l.slot}</td><td>${l.reason||'—'}</td>
-    <td><span class="badge ${l.status==='승인'?'b-ok':l.status==='반려'?'b-rej':l.status==='1차승인'||l.status==='2차승인'?'b-ing':'b-wait'}">${l.status}</span></td>
-    <td style="white-space:nowrap">
-      ${l.status==='대기'?`<button class="btn-sm approve" onclick="processLeave('${l.id}','승인')">승인</button> <button class="btn-sm reject" onclick="processLeave('${l.id}','반려')">반려</button> `:''}
-      <button class="btn-sm cancel" onclick="adminDelete('${l.id}')">삭제</button>
-    </td>
-  </tr>`).join('');
+  const myApproverIdx = approvers.indexOf(curUser);
+
+  tbody.innerHTML=allLeaves.map(l=>{
+    const statusBadge = l.status==='승인'?'b-ok':l.status==='반려'?'b-rej':l.status==='1차승인'||l.status==='2차승인'?'b-ing':'b-wait';
+
+    // 내 차례인지 확인
+    let canApprove = false;
+    if(myApproverIdx===0 && l.status==='대기') canApprove=true;
+    else if(myApproverIdx===1 && l.status==='1차승인') canApprove=true;
+    else if(myApproverIdx===2 && l.status==='2차승인') canApprove=true;
+
+    // 반려는 아직 최종승인/반려 아닐 때만
+    const canReject = l.status!=='승인' && l.status!=='반려' && myApproverIdx>=0;
+
+    return `<tr>
+      <td>${l.user}</td><td>${l.date}</td><td>${TYPE_LABEL[l.type]||l.type}</td><td>${l.slot}</td><td>${l.reason||'—'}</td>
+      <td><span class="badge ${statusBadge}">${l.status}</span></td>
+      <td style="white-space:nowrap">
+        ${canApprove?`<button class="btn-sm approve" onclick="processLeave('${l.id}','승인')">승인</button>`:''}
+        ${canReject?`<button class="btn-sm reject" onclick="processLeave('${l.id}','반려')">반려</button>`:''}
+        <button class="btn-sm cancel" onclick="adminDelete('${l.id}')">삭제</button>
+      </td>
+    </tr>`;
+  }).join('');
 }
 
 async function processLeave(id,status) {
