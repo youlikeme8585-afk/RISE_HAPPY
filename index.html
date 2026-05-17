@@ -87,6 +87,15 @@ select:focus,input:focus{border-color:var(--green)}
 @keyframes spin{to{transform:rotate(360deg)}}
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--tx);color:var(--bg);padding:10px 20px;border-radius:var(--r8);font-size:13px;transition:transform .3s;z-index:999;white-space:nowrap;pointer-events:none}
 #toast.show{transform:translateX(-50%) translateY(0)}
+.modal-backdrop{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:200}
+.modal{background:var(--bg);border-radius:var(--r12);padding:28px 24px;width:300px;border:.5px solid var(--br);box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modal h3{font-size:15px;font-weight:500;margin-bottom:6px}
+.modal p{font-size:13px;color:var(--tx2);margin-bottom:16px}
+.modal input{width:100%;padding:10px;border:.5px solid var(--br);border-radius:var(--r8);font-size:18px;text-align:center;letter-spacing:8px;background:var(--bg);color:var(--tx);outline:none;margin-bottom:12px}
+.modal input:focus{border-color:var(--green)}
+.modal-btns{display:flex;gap:8px}
+.modal-btns button{flex:1;padding:9px;border-radius:var(--r8);font-size:13px;font-weight:500;cursor:pointer;border:none}
+.modal-err{color:var(--red);font-size:12px;margin-bottom:8px;display:none}
 </style>
 </head>
 <body>
@@ -173,6 +182,18 @@ select:focus,input:focus{border-color:var(--green)}
 </div>
 
 <div id="toast"></div>
+<div id="pwModal" class="modal-backdrop" style="display:none">
+  <div class="modal">
+    <h3>🔒 본인 확인</h3>
+    <p id="pwModalName"></p>
+    <input type="password" id="pwInput" maxlength="4" placeholder="••••" oninput="if(this.value.length===4) checkPw()">
+    <div id="pwErr" class="modal-err">비밀번호가 틀렸습니다</div>
+    <div class="modal-btns">
+      <button onclick="closePwModal()" style="background:var(--bg2);color:var(--tx)">취소</button>
+      <button onclick="checkPw()" style="background:var(--green);color:#fff">확인</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbDnY33GtJJPXI64ySMOt2Ow6sL9Th22-99ufGXYv9KkojCpOflV5UH-bAQwZgzqmF/exec';
@@ -241,12 +262,54 @@ function applyUserRole() {
 }
 
 async function onUserChange() {
-  curUser = document.getElementById('userSelect').value;
-  await refreshLeaves();
-  applyUserRole();
-  renderDashboard();
-  renderApplyRemain();
-  renderTeam();
+  const selected = document.getElementById('userSelect').value;
+  const m = members.find(x=>x.name===selected);
+  // 관리자는 비밀번호 없이 바로 접근
+  if (!m?.pw) {
+    curUser = selected;
+    await refreshLeaves();
+    applyUserRole();
+    renderDashboard();
+    renderApplyRemain();
+    renderTeam();
+    return;
+  }
+  // 일반 팀원은 비밀번호 확인
+  showPwModal(selected);
+}
+
+function showPwModal(name) {
+  document.getElementById('pwModalName').textContent = name + '님의 비밀번호를 입력하세요';
+  document.getElementById('pwInput').value = '';
+  document.getElementById('pwErr').style.display = 'none';
+  document.getElementById('pwModal').style.display = 'flex';
+  setTimeout(()=>document.getElementById('pwInput').focus(), 100);
+  document.getElementById('pwModal')._target = name;
+}
+
+function closePwModal() {
+  document.getElementById('pwModal').style.display = 'none';
+  // 이전 사용자로 되돌리기
+  document.getElementById('userSelect').value = curUser;
+}
+
+async function checkPw() {
+  const name = document.getElementById('pwModal')._target;
+  const input = document.getElementById('pwInput').value;
+  const m = members.find(x=>x.name===name);
+  if (input === String(m?.pw)) {
+    document.getElementById('pwModal').style.display = 'none';
+    curUser = name;
+    await refreshLeaves();
+    applyUserRole();
+    renderDashboard();
+    renderApplyRemain();
+    renderTeam();
+  } else {
+    document.getElementById('pwErr').style.display = 'block';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
 }
 
 function goPage(id, btn) {
