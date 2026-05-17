@@ -52,6 +52,7 @@ tbody tr:hover td{background:var(--bg2)}
 .empty-row td{text-align:center;color:var(--tx3);padding:28px}
 .badge{display:inline-block;font-size:11px;padding:3px 9px;border-radius:10px;font-weight:500;white-space:nowrap}
 .b-wait{background:var(--al);color:var(--ad)}
+.b-ing{background:var(--bl);color:var(--bd)}
 .b-ok{background:var(--gl);color:var(--gd)}
 .b-rej{background:var(--rl);color:var(--rd)}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -198,7 +199,7 @@ const SLOTS = {
 };
 const COLORS=[{bg:'#E1F5EE',tx:'#085041'},{bg:'#E6F1FB',tx:'#042C53'},{bg:'#FAEEDA',tx:'#633806'},{bg:'#FBEAF0',tx:'#4B1528'},{bg:'#EAF3DE',tx:'#173404'},{bg:'#EEEDFE',tx:'#26215C'},{bg:'#FAECE7',tx:'#4A1B0C'},{bg:'#F1EFE8',tx:'#2C2C2A'},{bg:'#FCEBEB',tx:'#501313'},{bg:'#E1F5EE',tx:'#085041'}];
 
-let members=[],allLeaves=[],curUser='',curType='quarter',curSlot='',calY,calM;
+let members=[],allLeaves=[],approvers=[],curUser='',curType='quarter',curSlot='',calY,calM;
 
 async function api(params) {
   const url = SCRIPT_URL+'?'+new URLSearchParams(params);
@@ -214,10 +215,11 @@ window.onload = async () => {
 };
 
 async function loadAll() {
-  const [md, ld] = await Promise.all([api({action:'getMembers'}), api({action:'getAllLeaves'})]);
+  const md = await api({action:'getMembers'});
   members = md.members||[];
-  allLeaves = ld.leaves||[];
+  approvers = md.approvers||[];
   populateUserSelect();
+  await refreshLeaves();
   renderDashboard();
   renderTeam();
 }
@@ -229,7 +231,7 @@ function populateUserSelect() {
   onUserChange();
 }
 
-function onUserChange() {
+async function onUserChange() {
   curUser = document.getElementById('userSelect').value;
   const m = members.find(x=>x.name===curUser);
   const badge = document.getElementById('roleBadge');
@@ -239,7 +241,8 @@ function onUserChange() {
   } else {
     badge.textContent='일반'; badge.className='role-badge'; adminBtn.style.display='none';
   }
-  renderDashboard(); renderApplyRemain();
+  await refreshLeaves();
+  renderDashboard(); renderApplyRemain(); renderTeam();
 }
 
 function goPage(id,btn) {
@@ -274,7 +277,7 @@ function renderDashboard() {
   if(!myAll.length){tbody.innerHTML='<tr class="empty-row"><td colspan="6">신청 내역이 없습니다</td></tr>';return;}
   tbody.innerHTML=myAll.map(l=>`<tr>
     <td>${l.date}</td><td>${TYPE_LABEL[l.type]||l.type}</td><td>${l.slot}</td><td>${l.reason||'—'}</td>
-    <td><span class="badge ${l.status==='승인'?'b-ok':l.status==='반려'?'b-rej':'b-wait'}">${l.status}</span></td>
+    <td><span class="badge ${l.status==='승인'?'b-ok':l.status==='반려'?'b-rej':l.status==='1차승인'||l.status==='2차승인'?'b-ing':'b-wait'}">${l.status}</span></td>
     <td>${l.status==='대기'?`<button class="btn-sm cancel" onclick="cancelLeave('${l.id}')">취소</button>`:'—'}</td>
   </tr>`).join('');
 }
@@ -337,7 +340,7 @@ function renderAdmin() {
   if(!allLeaves.length){tbody.innerHTML='<tr class="empty-row"><td colspan="7">신청 내역이 없습니다</td></tr>';return;}
   tbody.innerHTML=allLeaves.map(l=>`<tr>
     <td>${l.user}</td><td>${l.date}</td><td>${TYPE_LABEL[l.type]||l.type}</td><td>${l.slot}</td><td>${l.reason||'—'}</td>
-    <td><span class="badge ${l.status==='승인'?'b-ok':l.status==='반려'?'b-rej':'b-wait'}">${l.status}</span></td>
+    <td><span class="badge ${l.status==='승인'?'b-ok':l.status==='반려'?'b-rej':l.status==='1차승인'||l.status==='2차승인'?'b-ing':'b-wait'}">${l.status}</span></td>
     <td style="white-space:nowrap">
       ${l.status==='대기'?`<button class="btn-sm approve" onclick="processLeave('${l.id}','승인')">승인</button> <button class="btn-sm reject" onclick="processLeave('${l.id}','반려')">반려</button> `:''}
       <button class="btn-sm cancel" onclick="adminDelete('${l.id}')">삭제</button>
@@ -346,7 +349,7 @@ function renderAdmin() {
 }
 
 async function processLeave(id,status) {
-  const res=await api({action:'processLeave',id,status});
+  const res=await api({action:'processLeave',id,status,approver:curUser});
   if(res.error){toast('오류: '+res.error);return;}
   await refreshLeaves();
   renderAdmin();renderDashboard();renderTeam();
@@ -362,8 +365,12 @@ async function adminDelete(id) {
 }
 
 async function refreshLeaves() {
-  const ld=await api({action:'getAllLeaves'});
-  allLeaves=ld.leaves||[];
+  const m = members.find(x=>x.name===curUser);
+  const isAdmin = m?.role==='관리자';
+  const ld = isAdmin
+    ? await api({action:'getAllLeaves'})
+    : await api({action:'getLeaves', user:curUser});
+  allLeaves = ld.leaves||[];
 }
 
 function prevMon(){calM--;if(calM<0){calM=11;calY--;}renderCalendar();}
@@ -391,7 +398,10 @@ function renderCalendar() {
 }
 
 function renderTeam() {
-  document.getElementById('teamGrid').innerHTML=members.map((m,i)=>{
+  const me = members.find(x=>x.name===curUser);
+  const isAdmin = me?.role==='관리자';
+  const showMembers = isAdmin ? members : members.filter(x=>x.name===curUser);
+  document.getElementById('teamGrid').innerHTML=showMembers.map((m,i)=>{
     const used=allLeaves.filter(l=>l.user===m.name&&l.status!=='반려').reduce((s,l)=>s+Number(l.days||0),0);
     const usedDays=used.toFixed(2);
     const remDays=(m.totalDays-used).toFixed(2);
