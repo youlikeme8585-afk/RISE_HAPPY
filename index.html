@@ -439,6 +439,17 @@ function renderTeam(){
 
 let toastTimer;
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2800);}
+
+// 30초마다 자동 갱신
+setInterval(async()=>{
+  await refreshLeaves();
+  renderDashboard();
+  renderTeam();
+  // 현재 관리자 탭이 열려있으면 관리자도 갱신
+  if(document.getElementById('page-admin').classList.contains('active')) renderAdmin();
+  // 현재 캘린더 탭이 열려있으면 캘린더도 갱신
+  if(document.getElementById('page-calendar').classList.contains('active')) renderCalendar();
+}, 30000);
 </script>
 </body>
 </html>
