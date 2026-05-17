@@ -264,7 +264,7 @@ function applyUserRole() {
 async function onUserChange() {
   const selected = document.getElementById('userSelect').value;
   const m = members.find(x=>x.name===selected);
-  // 관리자는 비밀번호 없이 바로 접근
+  // 비밀번호 없으면 바로 접근
   if (!m?.pw) {
     curUser = selected;
     await refreshLeaves();
@@ -274,7 +274,7 @@ async function onUserChange() {
     renderTeam();
     return;
   }
-  // 일반 팀원은 비밀번호 확인
+  // 비밀번호 있으면 확인
   showPwModal(selected);
 }
 
